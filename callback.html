@@ -4,17 +4,18 @@
   <meta charset="utf-8">
   <meta name="referrer" content="no-referrer">
   <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#12366b">
   <title>Đang đăng nhập…</title>
 </head>
-<body>
-  <p>Đang chuyển về Kamo-IT Account Portal…</p>
+<body style="margin:0;background:#12366b;color:#dbe7f8;font:15px/1.5 Roboto,Arial,sans-serif;display:grid;place-items:center;min-height:100vh">
+  <p>Đang chuyển về Kamo IT Account Portal…</p>
   <script>
     (function () {
-      var APP_URL = 'https://script.google.com/macros/s/AKfycbxny4mNYQwfv3idsPaPdZG3iDv_DH5qa3qSi4u4K1waAMjJkInEZb-xf6qfs9RCK8jCMw/exec';
+      // Chỉ chuyển tiếp các tham số cần thiết (bỏ authuser, prompt, scope, iss) về trang ứng dụng
       var src = new URLSearchParams(location.search);
       var out = new URLSearchParams();
       ['code', 'state', 'error'].forEach(function (k) { if (src.has(k)) out.set(k, src.get(k)); });
-      location.replace(APP_URL + '?' + out.toString());
+      location.replace('./' + (out.toString() ? '?' + out.toString() : ''));
     })();
   </script>
 </body>
