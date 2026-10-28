@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="noindex">
+  <title>Đang đăng nhập…</title>
+</head>
+<body>
+  <p>Đang chuyển về Kamo-IT Account Portal…</p>
+  <script>
+    (function () {
+      var APP_URL = 'https://script.google.com/macros/s/AKfycbxny4mNYQwfv3idsPaPdZG3iDv_DH5qa3qSi4u4K1waAMjJkInEZb-xf6qfs9RCK8jCMw/exec';
+      var src = new URLSearchParams(location.search);
+      var out = new URLSearchParams();
+      ['code', 'state', 'error'].forEach(function (k) { if (src.has(k)) out.set(k, src.get(k)); });
+      location.replace(APP_URL + '?' + out.toString());
+    })();
+  </script>
+</body>
+</html>
