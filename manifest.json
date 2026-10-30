@@ -1,7 +1,7 @@
 {
   "name": "Kamo IT Account Portal",
   "short_name": "Kamo IT",
-  "description": "Cổng thông tin hỗ trợ tài khoản IT",
+  "description": "Cổng thông tin hỗ trợ tài khoản IT Kamo",
   "lang": "vi",
   "start_url": "./",
   "scope": "./",

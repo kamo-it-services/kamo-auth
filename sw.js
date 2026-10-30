@@ -1,6 +1,6 @@
 // Service worker tối giản: lưu sẵn khung ứng dụng (không lưu dữ liệu tài khoản).
 // Dữ liệu cổng nằm ở script.google.com nên không đi qua file này.
-const CACHE = 'kamo-it-v1';
+const CACHE = 'kamo-it-v2';
 const SHELL = ['./', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png', 'favicon.png'];
 
 self.addEventListener('install', e => {
