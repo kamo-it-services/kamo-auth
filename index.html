@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="referrer" content="no-referrer">
   <meta name="robots" content="noindex">
-  <title>Kamo IT Account Portal</title>
+  <title>Kamo - IT Support Portal</title>
   <meta name="theme-color" content="#12366b">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" href="favicon.png">
@@ -54,11 +54,11 @@
     </div>
   </div>
 
-  <iframe id="app" title="Kamo IT Account Portal" allow="clipboard-write; clipboard-read" referrerpolicy="no-referrer"></iframe>
+  <iframe id="app" title="Kamo - IT Support Portal" allow="clipboard-write; clipboard-read" referrerpolicy="no-referrer"></iframe>
 
   <div id="install" role="dialog" aria-label="Cài đặt ứng dụng">
     <img src="icon-192.png" alt="">
-    <p id="installText"><b>Cài Kamo IT lên máy</b>Mở nhanh từ màn hình chính, không cần tìm link.</p>
+    <p id="installText"><b>Cài Kamo IT Support Portal lên máy</b>Mở nhanh từ màn hình chính, không cần tìm link.</p>
     <button type="button" id="installBtn">Cài đặt</button>
     <button type="button" id="installClose" aria-label="Đóng">×</button>
   </div>
@@ -136,7 +136,7 @@
       // iPhone / iPad: Safari không có nút cài tự động -> hướng dẫn bằng chữ
       var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
       if (isIOS && !standalone) {
-        installText.innerHTML = '<b>Cài Kamo IT lên máy</b>Bấm nút Chia sẻ của Safari, rồi chọn “Thêm vào MH chính”.';
+        installText.innerHTML = '<b>Cài Kamo IT Support Portal lên máy</b>Bấm nút Chia sẻ của Safari, rồi chọn “Thêm vào MH chính”.';
         installBtn.style.display = 'none';
         setTimeout(showBox, 2500);
       }
