@@ -1,7 +1,7 @@
 {
-  "name": "Kamo - IT Support Portal",
+  "name": "Kamo - IT Services Portal",
   "short_name": "Kamo IT",
-  "description": "Cổng thông tin hỗ trợ các dịch vụ IT Kamo: Tài khoản, CRM, POS, ...",
+  "description": "Cổng thông tin hỗ trợ các dịch vụ IT: Tài khoản, CRM, POS, ...",
   "lang": "vi",
   "start_url": "./",
   "scope": "./",
