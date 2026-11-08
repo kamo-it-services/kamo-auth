@@ -7,6 +7,11 @@
   <meta name="robots" content="noindex">
   <title>Kamo - IT Services Portal</title>
   <meta name="theme-color" content="#12366b">
+  <!-- Mở sẵn kết nối tới máy chủ Google (giảm thời gian chờ khi tải cổng) -->
+  <link rel="preconnect" href="https://script.google.com">
+  <link rel="preconnect" href="https://ssl.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -26,9 +31,15 @@
     #splash.done { opacity: 0; pointer-events: none; }
     .splash-inner { display: grid; justify-items: center; gap: 18px; padding: 24px; text-align: center; }
     .splash-inner img { width: 96px; height: 96px; border-radius: 22px; }
-    .bar { width: 120px; height: 3px; border-radius: 3px; background: rgba(255,255,255,.15); overflow: hidden; }
-    .bar::after { content: ""; display: block; width: 40%; height: 100%; background: var(--yellow); animation: slide 1.1s ease-in-out infinite; }
-    @keyframes slide { 0% { transform: translateX(-100%); } 100% { transform: translateX(260%); } }
+    /* Thanh tiến trình: chạy nhanh lúc đầu, chậm dần tới ~92% trong lúc chờ, tải xong chạy hết 100% */
+    .bar { position: relative; width: min(220px, 64vw); height: 6px; border-radius: 6px; background: rgba(255,255,255,.14); overflow: hidden; }
+    #barFill { position: absolute; inset: 0 auto 0 0; width: 0; border-radius: inherit; overflow: hidden;
+      background: linear-gradient(90deg, #f5b301, var(--yellow)); box-shadow: 0 0 10px rgba(255,213,74,.55); transition: width .35s ease-out; }
+    #barFill::after { content: ""; position: absolute; inset: 0; width: 60px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.75), transparent); animation: shine 1.2s linear infinite; }
+    @keyframes shine { 0% { transform: translateX(-60px); } 100% { transform: translateX(240px); } }
+    .bar.done #barFill { width: 100% !important; transition-duration: .2s; }
+    #barPct { margin: -10px 0 0; font-size: 12px; font-variant-numeric: tabular-nums; color: rgba(219,231,248,.75); min-height: 18px; }
     #splashMsg { margin: 0; font-size: 14px; max-width: 280px; }
     #retryBtn { display: none; font: inherit; font-weight: 700; padding: 9px 18px; border: 0; border-radius: 999px; background: var(--yellow); color: var(--navy); cursor: pointer; }
 
@@ -41,14 +52,16 @@
     #installBtn { flex: none; font: inherit; font-weight: 700; font-size: 14px; padding: 8px 14px; border: 0; border-radius: 999px; background: var(--navy); color: #fff; cursor: pointer; }
     #installClose { flex: none; width: 30px; height: 30px; padding: 0; border: 0; border-radius: 8px; background: transparent; color: #667085; font-size: 20px; line-height: 1; cursor: pointer; }
     #installBtn:focus-visible, #installClose:focus-visible, #retryBtn:focus-visible { outline: 3px solid rgba(255,213,74,.6); outline-offset: 2px; }
-    @media (prefers-reduced-motion: reduce) { .bar::after { animation: none; width: 100%; } #splash { transition: none; } }
+    /* Giảm chuyển động: vẫn chạy thanh tiến trình (cho biết đang tải), chỉ tắt vệt sáng */
+    @media (prefers-reduced-motion: reduce) { #barFill::after { animation: none; display: none; } #splash { transition: none; } }
   </style>
 </head>
 <body>
   <div id="splash" role="status" aria-live="polite">
     <div class="splash-inner">
       <img src="icon-192.png" alt="Kamo">
-      <div class="bar" aria-hidden="true"></div>
+      <div class="bar" id="bar" role="progressbar" aria-label="Đang tải" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="barFill"></span></div>
+      <p id="barPct" aria-hidden="true">0%</p>
       <p id="splashMsg">Đang mở cổng tài khoản…</p>
       <button type="button" id="retryBtn">Thử lại</button>
     </div>
@@ -80,21 +93,68 @@
       var target = APP_URL + (pass.toString() ? '?' + pass.toString() : '');
       if (location.search) history.replaceState(null, '', location.pathname); // xoá code khỏi thanh địa chỉ
 
-      var loadTimer;
+      /* ===== Thanh tiến trình ===== */
+      // Không đo được % thật của trang Google -> mô phỏng: nhanh lúc đầu, chậm dần, dừng ở 92% tới khi tải xong
+      var bar = document.getElementById('bar');
+      var barFill = document.getElementById('barFill');
+      var barPct = document.getElementById('barPct');
+      var prog = 0, progTimer = null, startAt = 0;
+      var STEPS = [
+        [0, 'Đang mở cổng tài khoản…'],
+        [3000, 'Đang kết nối máy chủ…'],
+        [7000, 'Đang tải giao diện…'],
+        [12000, 'Sắp xong, vui lòng chờ thêm chút…']
+      ];
+      function setProg(p) {
+        prog = p;
+        barFill.style.width = p.toFixed(1) + '%';
+        barPct.textContent = Math.floor(p) + '%';
+        bar.setAttribute('aria-valuenow', String(Math.floor(p)));
+      }
+      function startProg() {
+        clearInterval(progTimer);
+        bar.classList.remove('done');
+        startAt = Date.now();
+        setProg(0);
+        progTimer = setInterval(function () {
+          var t = Date.now() - startAt;
+          setProg(prog + (92 - prog) * (t < 1500 ? 0.09 : 0.035)); // ~45% sau 1,5 giây, ~80% sau 6 giây, tiến dần tới 92%
+          if (navigator.onLine === false || retryBtn.style.display === 'inline-block') return;
+          for (var i = STEPS.length - 1; i >= 0; i--) { if (t >= STEPS[i][0]) { splashMsg.textContent = STEPS[i][1]; break; } }
+        }, 200);
+      }
+      function finishProg() {
+        clearInterval(progTimer);
+        bar.classList.add('done');
+        setProg(100);
+      }
+
+      var loadTimer, doneTimer;
       function load(url) {
+        clearTimeout(doneTimer);
         splash.classList.remove('done');
         splashMsg.textContent = navigator.onLine === false ? 'Không có kết nối mạng.' : 'Đang mở cổng tài khoản…';
         retryBtn.style.display = 'none';
+        startProg();
         clearTimeout(loadTimer);
         loadTimer = setTimeout(function () {
-          splashMsg.textContent = 'Kết nối chậm hơn bình thường. Kiểm tra mạng rồi bấm Thử lại.';
           retryBtn.style.display = 'inline-block';
+          splashMsg.textContent = 'Kết nối chậm hơn bình thường. Kiểm tra mạng rồi bấm Thử lại.';
         }, 20000);
         frame.src = url;
       }
-      frame.addEventListener('load', function () {
+      function ready() {
+        if (splash.classList.contains('done') || bar.classList.contains('done')) return;
         clearTimeout(loadTimer);
-        splash.classList.add('done');
+        finishProg();
+        doneTimer = setTimeout(function () { splash.classList.add('done'); }, 250); // cho thấy thanh chạy hết 100%
+      }
+      frame.addEventListener('load', function () { if (frame.getAttribute('src')) ready(); });
+      // Cổng báo "đã vẽ xong giao diện" ngay khi sẵn sàng -> tắt màn chờ sớm, không chờ font / tài nguyên phụ
+      window.addEventListener('message', function (e) {
+        var o = String(e.origin || '');
+        if (!/^https:\/\/(?:[a-z0-9-]+-script\.googleusercontent\.com|script\.google\.com)$/.test(o)) return; // khung Apps Script: n-…-script.googleusercontent.com
+        if (e.data && e.data.kamo === 'portal-ready') ready();
       });
       retryBtn.addEventListener('click', function () { load(APP_URL); });
       window.addEventListener('online', function () { if (!splash.classList.contains('done')) load(APP_URL); });
