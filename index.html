@@ -155,6 +155,11 @@
         var o = String(e.origin || '');
         if (!/^https:\/\/(?:[a-z0-9-]+-script\.googleusercontent\.com|script\.google\.com)$/.test(o)) return; // khung Apps Script: n-…-script.googleusercontent.com
         if (e.data && e.data.kamo === 'portal-ready') ready();
+        // Nút "Tải lại app" / tự cập nhật code: mở lại khung app với vé giữ đăng nhập (vé dùng 1 lần, 2 phút)
+        if (e.data && e.data.kamo === 'reload' && /^[0-9a-f]{48}$/.test(String(e.data.resume || ''))) {
+          try { e.source.postMessage({ kamo: 'reload-ack' }, o); } catch (err) { /* bỏ qua */ }
+          load(APP_URL + (APP_URL.indexOf('?') === -1 ? '?' : '&') + 'resume=' + e.data.resume);
+        }
       });
       retryBtn.addEventListener('click', function () { load(APP_URL); });
       window.addEventListener('online', function () { if (!splash.classList.contains('done')) load(APP_URL); });
