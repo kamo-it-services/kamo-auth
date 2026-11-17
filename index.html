@@ -1,211 +1,728 @@
 <!doctype html>
 <html lang="vi">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="referrer" content="no-referrer">
-  <meta name="robots" content="noindex">
-  <title>Kamo - IT Services Portal</title>
-  <meta name="theme-color" content="#12366b">
-  <!-- Mở sẵn kết nối tới máy chủ Google (giảm thời gian chờ khi tải cổng) -->
-  <link rel="preconnect" href="https://script.google.com">
-  <link rel="preconnect" href="https://ssl.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/png" href="favicon.png">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Kamo IT">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <style>
-    :root { --navy: #12366b; --yellow: #ffd54a; --ink: #172033; --bg: #f4f7fb; }
-    * { box-sizing: border-box; }
-    html, body { margin: 0; height: 100%; background: var(--bg); font: 15px/1.5 Roboto, Arial, sans-serif; color: var(--ink); }
-    body { padding-top: env(safe-area-inset-top); }
-    #app { position: fixed; inset: env(safe-area-inset-top) 0 0 0; width: 100%; height: calc(100% - env(safe-area-inset-top)); border: 0; display: block; background: var(--bg); }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kamo IT Portal</title>
+<meta name="description" content="Kamo IT Portal – cổng truy cập ứng dụng nội bộ Công ty TNHH Kamo">
+<meta name="theme-color" content="#0c1f45">
+<link rel="icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Kamo IT">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg1:#0a1a3b;--bg2:#12306a;--bg3:#1d4f96;--yellow:#f5c518;--yellow-2:#ffd84d;--txt:#fff;--dim:rgba(255,255,255,.62);
+  --navy:#12306a;--ink:#14213d;--muted:#64748b;--line:#e3e8f0;--red:#dc2626;--green:#16a34a}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--txt);-webkit-font-smoothing:antialiased;
+  min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;overflow-x:hidden;
+  background:
+    radial-gradient(900px 520px at 50% 38%,rgba(45,110,200,.42),transparent 70%),
+    linear-gradient(180deg,var(--bg1) 0%,var(--bg2) 60%,#163f80 100%);
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
+  background-image:radial-gradient(rgba(255,255,255,.09) 1px,transparent 1.2px);background-size:26px 26px;
+  -webkit-mask-image:radial-gradient(ellipse 70% 60% at 50% 40%,#000 30%,transparent 80%);mask-image:radial-gradient(ellipse 70% 60% at 50% 40%,#000 30%,transparent 80%)}
+button{font:inherit;cursor:pointer}
+.hidden{display:none!important}
+svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
 
-    /* Màn hình chờ khi đang tải cổng */
-    #splash { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; background: var(--navy); color: #dbe7f8; transition: opacity .25s; }
-    #splash.done { opacity: 0; pointer-events: none; }
-    .splash-inner { display: grid; justify-items: center; gap: 18px; padding: 24px; text-align: center; }
-    .splash-inner img { width: 96px; height: 96px; border-radius: 22px; }
-    /* Thanh tiến trình: chạy nhanh lúc đầu, chậm dần tới ~92% trong lúc chờ, tải xong chạy hết 100% */
-    .bar { position: relative; width: min(220px, 64vw); height: 6px; border-radius: 6px; background: rgba(255,255,255,.14); overflow: hidden; }
-    #barFill { position: absolute; inset: 0 auto 0 0; width: 0; border-radius: inherit; overflow: hidden;
-      background: linear-gradient(90deg, #f5b301, var(--yellow)); box-shadow: 0 0 10px rgba(255,213,74,.55); transition: width .35s ease-out; }
-    #barFill::after { content: ""; position: absolute; inset: 0; width: 60px;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,.75), transparent); animation: shine 1.2s linear infinite; }
-    @keyframes shine { 0% { transform: translateX(-60px); } 100% { transform: translateX(240px); } }
-    .bar.done #barFill { width: 100% !important; transition-duration: .2s; }
-    #barPct { margin: -10px 0 0; font-size: 12px; font-variant-numeric: tabular-nums; color: rgba(219,231,248,.75); min-height: 18px; }
-    #splashMsg { margin: 0; font-size: 14px; max-width: 280px; }
-    #retryBtn { display: none; font: inherit; font-weight: 700; padding: 9px 18px; border: 0; border-radius: 999px; background: var(--yellow); color: var(--navy); cursor: pointer; }
+/* ===== Thanh tren ===== */
+.top{position:relative;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:22px 32px}
+.logo{height:30px;width:auto;display:block}
+.logo-txt{font-weight:600;letter-spacing:2px;color:var(--yellow);font-size:24px}
+.tr{display:flex;align-items:center;gap:14px}
+.clock{font-size:13px;color:var(--dim);font-variant-numeric:tabular-nums;letter-spacing:.2px}
+.gear{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:var(--dim);transition:.15s}
+.gear.on{color:var(--yellow);border-color:rgba(245,197,24,.5)}
+.gear:hover,.gear:focus-visible{color:var(--yellow);border-color:rgba(245,197,24,.5);background:rgba(245,197,24,.08);outline:none}
+.gear svg{width:17px;height:17px}
 
-    /* Gợi ý cài đặt ứng dụng */
-    #install { position: fixed; z-index: 20; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); max-width: 460px; margin: 0 auto; display: none; align-items: center; gap: 12px; padding: 12px 14px; background: #fff; border: 1px solid #e5eaf2; border-radius: 14px; box-shadow: 0 10px 30px rgba(18,54,107,.18); }
-    #install.show { display: flex; }
-    #install img { width: 40px; height: 40px; border-radius: 10px; flex: none; }
-    #install p { margin: 0; flex: 1; font-size: 13.5px; line-height: 1.4; }
-    #install b { display: block; font-size: 14.5px; color: var(--navy); }
-    #installBtn { flex: none; font: inherit; font-weight: 700; font-size: 14px; padding: 8px 14px; border: 0; border-radius: 999px; background: var(--navy); color: #fff; cursor: pointer; }
-    #installClose { flex: none; width: 30px; height: 30px; padding: 0; border: 0; border-radius: 8px; background: transparent; color: #667085; font-size: 20px; line-height: 1; cursor: pointer; }
-    #installBtn:focus-visible, #installClose:focus-visible, #retryBtn:focus-visible { outline: 3px solid rgba(255,213,74,.6); outline-offset: 2px; }
-    /* Giảm chuyển động: vẫn chạy thanh tiến trình (cho biết đang tải), chỉ tắt vệt sáng */
-    @media (prefers-reduced-motion: reduce) { #barFill::after { animation: none; display: none; } #splash { transition: none; } }
-  </style>
+/* ===== Thanh che do cau hinh ===== */
+.adm{position:relative;z-index:5;margin:0 auto;width:min(1100px,calc(100% - 40px));display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.4);border-radius:14px;padding:9px 10px 9px 16px;font-size:13.5px}
+.adm .dot{width:8px;height:8px;border-radius:50%;background:var(--yellow);box-shadow:0 0 0 4px rgba(245,197,24,.2)}
+.adm b{color:var(--yellow);font-weight:600}
+.adm .who{color:var(--dim)}
+.adm .sm{display:none}
+.adm .sp{flex:1}
+.ab{display:inline-flex;align-items:center;gap:7px;border:0;border-radius:9px;padding:8px 13px;font-size:13.5px;font-weight:600;transition:.15s}
+.ab.y{background:var(--yellow);color:#1b2a4a}.ab.y:hover{background:var(--yellow-2)}
+.ab.g{background:rgba(255,255,255,.1);color:#fff}.ab.g:hover{background:rgba(255,255,255,.18)}
+.ab.r{background:transparent;color:#fca5a5}.ab.r:hover{background:rgba(220,38,38,.15)}
+
+/* ===== Trung tam ===== */
+main{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 20px 40px;text-align:center}
+h1{margin:0;font-size:46px;font-weight:300;letter-spacing:-.5px;line-height:1.1}
+h1 span{color:var(--yellow);font-weight:400}
+.lead{margin:14px 0 0;font-size:15px;color:var(--dim)}
+.srch{position:relative;margin-top:28px;width:min(360px,100%)}
+.srch input{width:100%;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.07);color:#fff;border-radius:12px;padding:11px 40px 11px 40px;font:inherit;font-size:14px;outline:none;transition:.15s}
+.srch input::placeholder{color:rgba(255,255,255,.45)}
+.srch input:focus{border-color:rgba(245,197,24,.6);background:rgba(255,255,255,.1)}
+.srch .i{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.5)}
+.srch kbd{position:absolute;right:10px;top:50%;transform:translateY(-50%);font:600 11px Inter,sans-serif;color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:2px 7px}
+
+.apps{display:flex;flex-wrap:wrap;justify-content:center;gap:40px 64px;margin-top:56px;max-width:1100px}
+.srch:not(.hidden) + .apps{margin-top:40px}
+.app{position:relative;display:flex;flex-direction:column;align-items:center;gap:16px;text-decoration:none;color:var(--txt);outline:none;width:180px;border-radius:20px}
+.ic{width:128px;height:128px;border-radius:32px;display:grid;place-items:center;position:relative;
+  background:linear-gradient(150deg,#2a6fd0 0%,#173f86 100%);box-shadow:0 18px 40px rgba(5,20,60,.55);
+  transition:transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s}
+.ic svg{width:58px;height:58px;fill:none;stroke:var(--yellow);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.ic:after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 -1px 0 rgba(0,0,0,.15)}
+.app:hover .ic,.app:focus-visible .ic{transform:translateY(-6px) scale(1.04);box-shadow:0 26px 50px rgba(5,20,60,.7),0 0 0 6px rgba(245,197,24,.22)}
+.app:active .ic{transform:scale(.97)}
+.nm{font-size:17px;font-weight:500;letter-spacing:.1px;max-width:100%;overflow-wrap:anywhere}
+.ds{font-size:13px;color:var(--dim);line-height:1.5;margin-top:-8px;max-width:100%;overflow-wrap:anywhere}
+.kh{position:absolute;top:-6px;left:calc(50% + 50px);font:600 11px Inter,sans-serif;color:#1b2a4a;background:var(--yellow);border-radius:6px;padding:2px 6px;opacity:0;transform:translateY(4px);transition:.15s;pointer-events:none}
+.app:hover .kh,.app:focus-visible .kh{opacity:1;transform:none}
+/* bao yeu cau moi tren icon */
+.bd{position:absolute;top:-9px;right:-9px;min-width:30px;height:30px;padding:0 8px;border-radius:999px;display:grid;place-items:center;
+  font:700 14px/1 Inter,sans-serif;color:#fff;background:linear-gradient(180deg,#ff5a4f,#e11d2e);border:3px solid #10306a;
+  box-shadow:0 6px 16px rgba(225,29,46,.45);z-index:2;pointer-events:none;transform-origin:center}
+.bd::after{content:'';position:absolute;inset:-3px;border-radius:inherit;box-shadow:0 0 0 0 rgba(255,90,79,.55);animation:bdSong 2.4s ease-out infinite}
+.bd.moi{animation:bdNay .7s cubic-bezier(.3,1.6,.5,1)}
+@keyframes bdSong{0%{box-shadow:0 0 0 0 rgba(255,90,79,.55)}70%,100%{box-shadow:0 0 0 12px rgba(255,90,79,0)}}
+@keyframes bdNay{0%{transform:scale(.4)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
+.apps.many .bd{min-width:27px;height:27px;font-size:13px;top:-8px;right:-8px}
+.tb{font-size:12.5px;color:#ffd0cc;margin-top:-10px;display:flex;align-items:center;gap:6px}
+.tb i{width:7px;height:7px;border-radius:50%;background:#ff5a4f;box-shadow:0 0 0 3px rgba(255,90,79,.25)}
+@media (prefers-reduced-motion:reduce){.bd::after,.bd.moi{animation:none}}
+.apps.many{gap:36px 44px}
+.apps.many .app{width:150px}
+.apps.many .ic{width:108px;height:108px;border-radius:28px}
+.apps.many .ic svg{width:48px;height:48px}
+.apps.many .kh{left:calc(50% + 40px)}
+.empty{color:var(--dim);font-size:14px;padding:30px 0}
+
+/* che do cau hinh: tile */
+body.edit .app{cursor:grab}
+body.edit .app .kh{display:none}
+body.edit .app .ic{outline:2px dashed rgba(245,197,24,.0);outline-offset:6px}
+body.edit .app:hover .ic{outline-color:rgba(245,197,24,.6)}
+.app.off .ic{filter:grayscale(.75);opacity:.45}
+.app.off .nm,.app.off .ds{opacity:.5}
+.tag{position:absolute;top:96px;left:50%;transform:translateX(-50%);font:600 10.5px Inter,sans-serif;letter-spacing:.4px;color:#fff;background:#475569;border-radius:999px;padding:3px 9px;white-space:nowrap}
+.apps.many .tag{top:78px}
+.ctl{position:absolute;top:-12px;right:6px;display:flex;gap:4px;z-index:2}
+.apps.many .ctl{right:-2px}
+.ctl button{width:30px;height:30px;border-radius:50%;border:0;display:grid;place-items:center;background:#fff;color:var(--navy);box-shadow:0 4px 12px rgba(0,0,0,.3);transition:.12s}
+.ctl button:hover{background:var(--yellow)}
+.ctl button svg{width:15px;height:15px}
+.app.drag{opacity:.35}
+.app.over .ic{box-shadow:0 0 0 4px var(--yellow),0 18px 40px rgba(5,20,60,.55)}
+.add .ic{background:rgba(255,255,255,.04);border:2px dashed rgba(245,197,24,.55);box-shadow:none}
+.add .ic:after{display:none}
+.add .ic svg{stroke:var(--yellow)}
+.add:hover .ic{background:rgba(245,197,24,.08)}
+
+/* ===== Chan trang: Ho tro IT ===== */
+footer{position:relative;padding:0 24px calc(14px + env(safe-area-inset-bottom))}
+.sup{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  background:linear-gradient(100deg,#12306a 0%,#1d4f96 100%);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:12px 14px 12px 22px;box-shadow:0 10px 30px rgba(3,12,35,.35)}
+.sup-l{display:flex;align-items:center;gap:10px;color:var(--yellow);font-weight:700;font-size:14px;letter-spacing:1.5px;white-space:nowrap}
+.sup-l svg{width:20px;height:20px;fill:none;stroke:var(--yellow);stroke-width:2;stroke-linecap:round}
+.sup-r{display:flex;align-items:center;background:rgba(255,255,255,.1);border-radius:999px;padding:8px 6px}
+.sup-r .it{display:flex;align-items:center;gap:9px;padding:2px 16px;color:#fff;text-decoration:none;font-size:14.5px;white-space:nowrap}
+.sup-r .it + .it{border-left:1px solid rgba(255,255,255,.28)}
+.sup-r a.it:hover{color:var(--yellow)}
+.sup-r svg{width:17px;height:17px;fill:var(--yellow);flex:none}
+.sup-r a.it:hover svg{fill:var(--yellow-2)}
+.copy{text-align:center;font-size:12px;color:var(--dim);margin-top:12px}
+
+/* ===== Hop thoai (nen trang) ===== */
+.ov{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:16px;background:rgba(5,14,35,.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);animation:fi .15s}
+@keyframes fi{from{opacity:0}}
+.dlg{width:min(560px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:#fff;color:var(--ink);border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.45);text-align:left;animation:up .18s cubic-bezier(.2,.8,.2,1)}
+.dlg.sm{width:min(400px,100%)}
+@keyframes up{from{transform:translateY(12px);opacity:0}}
+.dh{display:flex;align-items:center;gap:10px;padding:18px 22px 6px}
+.dh h3{margin:0;font-size:17px;font-weight:600;color:var(--navy);flex:1}
+.x{width:32px;height:32px;border-radius:9px;border:0;background:transparent;color:var(--muted);display:grid;place-items:center}
+.x:hover{background:#f1f5f9;color:var(--ink)}
+.db{padding:10px 22px 6px}
+.df{display:flex;align-items:center;gap:8px;padding:14px 22px 20px}
+.df .sp{flex:1}
+.f{margin-bottom:14px}
+.f label{display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;color:#334155;margin-bottom:6px}
+.f label small{font-weight:500;color:#94a3b8;font-variant-numeric:tabular-nums}
+.f label small.max{color:var(--red)}
+.inp{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;font-size:14px;color:var(--ink);background:#fff;outline:none;transition:.15s}
+.inp:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+.inp.bad{border-color:var(--red);box-shadow:0 0 0 3px rgba(220,38,38,.12)}
+.row{display:flex;gap:8px}
+.row .inp{flex:1}
+.hint{font-size:12px;color:var(--muted);margin-top:5px}
+.err{color:var(--red);font-size:13px;min-height:18px;margin-top:2px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:10px;padding:9px 15px;font-size:14px;font-weight:600;transition:.15s;white-space:nowrap}
+.btn:hover{background:#f8fafc}
+.btn.pri{background:var(--navy);border-color:var(--navy);color:#fff}.btn.pri:hover{background:#1a3f85}
+.btn.del{color:var(--red);border-color:#fecaca}.btn.del:hover{background:#fef2f2}
+.btn.huy{background:#fff;border:1.5px solid var(--red);color:var(--red)}.btn.huy:hover{background:#fef2f2}
+.df .btn{border-width:1.5px;min-width:84px}
+.df .btn.pri{border-color:#0c1f45;box-shadow:0 2px 6px rgba(18,48,106,.25)}
+.btn.del.cf{background:var(--red);color:#fff;border-color:var(--red)}
+.btn:disabled{opacity:.6;cursor:default}
+/* xem truoc */
+.pv{display:flex;align-items:center;gap:16px;border-radius:14px;padding:16px 18px;margin-bottom:16px;
+  background:radial-gradient(300px 120px at 20% 50%,rgba(45,110,200,.45),transparent 70%),linear-gradient(135deg,#0a1a3b,#173f86)}
+.pv .ic{width:72px;height:72px;border-radius:18px;box-shadow:0 10px 24px rgba(5,20,60,.5);flex:none}
+.pv .ic svg{width:34px;height:34px}
+.pv .t{min-width:0}
+.pv .nm{color:#fff;font-size:16px;display:block}
+.pv .ds{display:block;margin-top:3px}
+.pv .u{display:block;font-size:11.5px;color:rgba(255,255,255,.45);margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* chon icon */
+.icg{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:6px;max-height:156px;overflow:auto;padding:2px}
+.icg button{aspect-ratio:1;border:1px solid var(--line);background:#f8fafc;border-radius:10px;display:grid;place-items:center;color:#1e3a8a;transition:.12s}
+.icg button:hover{border-color:#93c5fd;background:#eff6ff}
+.icg button.on{background:var(--navy);border-color:var(--navy);color:var(--yellow);box-shadow:0 0 0 3px rgba(18,48,106,.2)}
+.icg svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+/* cong tac */
+.sw{display:flex;align-items:center;gap:10px;font-size:13.5px;color:#334155;cursor:pointer;user-select:none;padding:4px 0}
+.sw input{appearance:none;-webkit-appearance:none;width:38px;height:22px;border-radius:999px;background:#cbd5e1;position:relative;cursor:pointer;transition:.15s;flex:none;margin:0}
+.sw input:after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:.15s}
+.sw input:checked{background:var(--green)}
+.sw input:checked:after{left:19px}
+.sws{display:flex;gap:22px;flex-wrap:wrap}
+.meta{font-size:11.5px;color:#94a3b8;margin-top:10px}
+
+/* thong bao */
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);z-index:60;background:#0f172a;color:#fff;border-radius:12px;padding:11px 18px;font-size:14px;box-shadow:0 12px 30px rgba(0,0,0,.35);opacity:0;transition:.2s;pointer-events:none;max-width:calc(100% - 32px)}
+.toast.on{opacity:1;transform:translateX(-50%)}
+.toast.bad{background:#991b1b}
+
+/* ===== Dien thoai ===== */
+@media (max-width:640px){
+  .top{padding:14px 18px}
+  .logo{height:22px}
+  .clock{font-size:12px}
+  .gear{width:32px;height:32px}
+  main{justify-content:flex-start;padding:65px 16px 24px}
+  h1{font-size:30px}
+  .lead{font-size:13.5px;margin-top:8px}
+  .srch{margin-top:20px}
+  .apps,.apps.many{gap:24px 12px;margin-top:30px;width:100%}
+  .srch:not(.hidden) + .apps{margin-top:24px}
+  .app,.apps.many .app{width:calc(50% - 6px);max-width:170px;gap:9px}
+  /* icon dien thoai: 86 -> 69px (nho hon 20%) */
+  .ic,.apps.many .ic{width:69px;height:69px;border-radius:18px;box-shadow:0 10px 22px rgba(5,20,60,.5)}
+  .ic svg,.apps.many .ic svg{width:32px;height:32px}
+  .ic:after{border-radius:18px}
+  .tag,.apps.many .tag{top:50px;font-size:9.5px;padding:2px 7px}
+  .ctl,.apps.many .ctl{top:-14px;right:calc(50% - 50px)}
+  .ctl button{width:26px;height:26px}
+  .ctl button svg{width:13px;height:13px}
+  .nm{font-size:14.5px}
+  .ds{font-size:12px;line-height:1.4;margin-top:-6px;padding:0 2px}
+  .kh{display:none}
+  .adm{width:calc(100% - 32px);font-size:13px;gap:6px;padding:8px 8px 8px 14px}
+  .adm .who,.adm .lg{display:none}
+  .adm .sm{display:inline}
+  .ab{padding:8px 11px}
+  body.edit .apps{row-gap:40px;margin-top:40px}
+  body.edit main{padding-top:28px}
+  .dh{padding:16px 18px 4px}.db{padding:8px 18px 4px}.df{padding:12px 18px 18px;flex-wrap:wrap}
+}
+@media (max-width:420px){ .clock .d{display:none} }
+@media (max-width:760px){
+  /* Ho tro IT gon: [nhan + ten] ben trai, nut Goi / Email ben phai */
+  footer{padding:0 14px calc(10px + env(safe-area-inset-bottom))}
+  .sup{display:grid;grid-template-columns:1fr auto auto;grid-template-rows:auto auto;column-gap:8px;row-gap:3px;align-items:center;
+    padding:10px 10px 10px 16px;border-radius:14px}
+  .sup-l{grid-column:1;grid-row:1;font-size:11.5px;letter-spacing:1.2px;gap:7px}
+  .sup-l svg{width:15px;height:15px}
+  .sup-r{display:contents}
+  .sup-r .it{padding:0;font-size:13.5px}
+  .sup-r .it + .it{border:0}
+  .sup-r span.it{grid-column:1;grid-row:2;color:#fff;font-weight:500;min-width:0}
+  .sup-r span.it svg{display:none}
+  .sup-r span.it .tx{overflow:hidden;text-overflow:ellipsis}
+  .sup-r a.it{grid-row:1 / 3;width:42px;height:42px;border-radius:12px;justify-content:center;background:rgba(255,255,255,.12);transition:background .15s}
+  .sup-r a.it:active,.sup-r a.it:hover{background:rgba(245,197,24,.2)}
+  .sup-r a.it svg{width:19px;height:19px}
+  .sup-r a.it .tx{display:none}
+  .copy{font-size:11px;margin-top:8px}
+}
+@media (prefers-reduced-motion:reduce){.ic,.ov,.dlg{transition:none;animation:none}}
+</style>
 </head>
 <body>
-  <div id="splash" role="status" aria-live="polite">
-    <div class="splash-inner">
-      <img src="icon-192.png" alt="Kamo">
-      <div class="bar" id="bar" role="progressbar" aria-label="Đang tải" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="barFill"></span></div>
-      <p id="barPct" aria-hidden="true">0%</p>
-      <p id="splashMsg">Đang mở cổng tài khoản…</p>
-      <button type="button" id="retryBtn">Thử lại</button>
+<header class="top">
+  <img class="logo" src="logo-text.png" alt="KAMO" onerror="this.outerHTML='<span class=&quot;logo-txt&quot;>KAMO</span>'">
+  <div class="tr">
+    <span class="clock" id="clock"></span>
+    <button class="gear" id="bGear" title="Cấu hình Portal (admin)" aria-label="Cấu hình Portal">
+      <svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>
+    </button>
+  </div>
+</header>
+
+<div class="adm hidden" id="adm">
+  <span class="dot"></span><b><span class="lg">Chế độ cấu hình</span><span class="sm">Cấu hình</span></b><span class="who" id="admWho"></span>
+  <span class="sp"></span>
+  <button class="ab y" id="bAdd"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Thêm<span class="lg"> ứng dụng</span></button>
+  <button class="ab g" id="bDone">Xong</button>
+  <button class="ab r" id="bLogout" title="Đăng xuất admin">Đăng xuất</button>
+</div>
+
+<main>
+  <h1>Kamo <span>IT Portal</span></h1>
+  <p class="lead" id="lead">Chọn ứng dụng để bắt đầu</p>
+  <div class="srch hidden" id="srch">
+    <svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+    <input id="q" type="search" placeholder="Tìm ứng dụng…" autocomplete="off" aria-label="Tìm ứng dụng">
+    <kbd>/</kbd>
+  </div>
+  <nav class="apps" id="apps" aria-label="Ứng dụng"></nav>
+</main>
+
+<footer>
+  <div class="sup">
+    <div class="sup-l">
+      <svg viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13.5" width="4" height="6" rx="1.5"/><rect x="17" y="13.5" width="4" height="6" rx="1.5"/></svg>
+      HỖ TRỢ IT
+    </div>
+    <div class="sup-r">
+      <span class="it"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z"/></svg><span class="tx">Lê Minh Hiếu - BPIT</span></span>
+      <a class="it" href="tel:0984559690" title="Gọi 098 455 9690" aria-label="Gọi 098 455 9690"><svg viewBox="0 0 24 24"><path d="M6.6 10.8a15.3 15.3 0 006.6 6.6l2.2-2.2a1 1 0 011-.25 11.4 11.4 0 003.6.57 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.57 3.57a1 1 0 01-.25 1z"/></svg><span class="tx">098 455 9690</span></a>
+      <a class="it" href="mailto:hieulm.morico.life@gmail.com" title="Email hieulm.morico.life@gmail.com" aria-label="Gửi email hỗ trợ"><svg viewBox="0 0 24 24"><path d="M3 5h18a1 1 0 011 1v12a1 1 0 01-1 1H3a1 1 0 01-1-1V6a1 1 0 011-1zm9 7.2L3.6 7v.3L12 13l8.4-5.7V7z"/></svg><span class="tx">hieulm.morico.life@gmail.com</span></a>
     </div>
   </div>
+  <div class="copy">© 2026 Kamo Co.,Ltd</div>
+</footer>
 
-  <iframe id="app" title="Kamo - IT Services Portal" allow="clipboard-write; clipboard-read" referrerpolicy="no-referrer"></iframe>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <div id="install" role="dialog" aria-label="Cài đặt ứng dụng">
-    <img src="icon-192.png" alt="">
-    <p id="installText"><b>Cài Kamo - IT Services Portal lên máy</b>Mở nhanh từ màn hình chính, không cần tìm link.</p>
-    <button type="button" id="installBtn">Cài đặt</button>
-    <button type="button" id="installClose" aria-label="Đóng">×</button>
-  </div>
+<script>
+'use strict';
+/* ================= CAU HINH ================= */
+// Danh sach ung dung luu trong CSDL cua Payment Portal (NAS). Admin Payment Portal = admin Portal.
+const API = 'https://38melinh.dynns.com:59090/api';
+// Dung khi khong ket noi duoc may chu va chua co ban luu tam
+const MAC_DINH = [
+  {id:1, ten:'IT Services', mo_ta:'Tài khoản & dịch vụ CNTT', url:'https://kamo-it-services.github.io/kamo-auth/', icon:'shield', dang_dung:true, tab_moi:false},
+  {id:2, ten:'Payment',     mo_ta:'Thanh toán & Bank',        url:'https://38melinh.dynns.com:59090/',             icon:'card',   dang_dung:true, tab_moi:false}
+];
 
-  <script>
-    (function () {
-      var APP_URL = 'https://script.google.com/macros/s/AKfycbxny4mNYQwfv3idsPaPdZG3iDv_DH5qa3qSi4u4K1waAMjJkInEZb-xf6qfs9RCK8jCMw/exec';
+/* ================= THU VIEN ICON (net ve, 24x24) ================= */
+const IC = {
+  shield:  ['Bảo mật','<path d="M12 2.8l7.2 3v5.4c0 4.6-3.1 8.5-7.2 9.8-4.1-1.3-7.2-5.2-7.2-9.8V5.8L12 2.8z"/><circle cx="12" cy="10.2" r="2.3"/><path d="M12 12.5v3.6"/>'],
+  card:    ['Thẻ / thanh toán','<rect x="2.8" y="5.2" width="18.4" height="13.6" rx="2.6"/><path d="M2.8 9.8h18.4"/><path d="M6.8 14.8h4.4"/>'],
+  wallet:  ['Ví / tài chính','<path d="M3.5 7.5A2.5 2.5 0 016 5h11.5v3.5"/><rect x="3.5" y="8" width="17" height="11" rx="2.5"/><path d="M16 13.5h2"/>'],
+  chart:   ['Báo cáo','<path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/>'],
+  users:   ['Nhân sự','<circle cx="9" cy="8" r="3.4"/><path d="M2.8 19.5c0-3.4 2.8-5.6 6.2-5.6s6.2 2.2 6.2 5.6"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14c2.8.1 4.7 2 4.7 4.8"/>'],
+  user:    ['Tài khoản','<circle cx="12" cy="8" r="4"/><path d="M4 20.5c0-4.2 3.6-6.8 8-6.8s8 2.6 8 6.8"/>'],
+  mail:    ['Email','<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 6.5l8.5 6.5 8.5-6.5"/>'],
+  chat:    ['Tin nhắn','<path d="M20.5 12a8 8 0 01-11.6 7.1L3.5 20.5l1.4-4.9A8 8 0 1120.5 12z"/>'],
+  calendar:['Lịch','<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>'],
+  clock:   ['Chấm công','<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>'],
+  folder:  ['Thư mục','<path d="M3 7.5A2.5 2.5 0 015.5 5h3.7l2 2.3h7.3A2.5 2.5 0 0121 9.8v7.7a2.5 2.5 0 01-2.5 2.5h-13A2.5 2.5 0 013 17.5z"/>'],
+  file:    ['Tài liệu','<path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M8.5 13h7M8.5 17h5"/>'],
+  table:   ['Bảng tính','<rect x="3.5" y="4" width="17" height="16" rx="2.5"/><path d="M3.5 9.5h17M3.5 15h17M10 9.5V20"/>'],
+  book:    ['Hướng dẫn','<path d="M4 5.5A2.5 2.5 0 016.5 3H20v15H6.5A2.5 2.5 0 004 20.5z"/><path d="M4 20.5A2.5 2.5 0 016.5 18H20v3H6.5"/>'],
+  cloud:   ['Cloud / Drive','<path d="M7 18.5a4.5 4.5 0 01-.6-9 6 6 0 0111.5 1.6A3.8 3.8 0 0117.5 18.5z"/>'],
+  server:  ['Máy chủ / NAS','<rect x="3.5" y="4" width="17" height="7" rx="2"/><rect x="3.5" y="13" width="17" height="7" rx="2"/><path d="M7.5 7.5h.01M7.5 16.5h.01"/>'],
+  monitor: ['Máy tính','<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8.5 20h7M12 16v4"/>'],
+  printer: ['Máy in','<path d="M7 8V3.5h10V8"/><rect x="3.5" y="8" width="17" height="8" rx="2"/><path d="M7 13.5h10V20.5H7z"/>'],
+  wifi:    ['Mạng / Wi-Fi','<path d="M2.5 9a14 14 0 0119 0M5.5 12.3a9.5 9.5 0 0113 0M8.6 15.6a5 5 0 016.8 0"/><path d="M12 19h.01"/>'],
+  lock:    ['Mật khẩu','<rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 018 0v3"/>'],
+  headset: ['Hỗ trợ','<path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13.5" width="4" height="6" rx="1.5"/><rect x="17" y="13.5" width="4" height="6" rx="1.5"/>'],
+  ticket:  ['Yêu cầu / ticket','<path d="M3.5 8.5V6.5a1.5 1.5 0 011.5-1.5h14a1.5 1.5 0 011.5 1.5v2a3.5 3.5 0 000 7v2a1.5 1.5 0 01-1.5 1.5H5a1.5 1.5 0 01-1.5-1.5v-2a3.5 3.5 0 000-7z"/><path d="M14 5v14" stroke-dasharray="2 2.4"/>'],
+  cart:    ['Mua hàng','<path d="M3 4h2.2l2.2 11h10.4l2.2-8H6.3"/><circle cx="9" cy="19.2" r="1.3"/><circle cx="17" cy="19.2" r="1.3"/>'],
+  box:     ['Kho / tài sản','<path d="M12 3l8 4.3v9.4L12 21l-8-4.3V7.3z"/><path d="M4 7.3l8 4.3 8-4.3M12 11.6V21"/>'],
+  truck:   ['Giao vận','<path d="M3 6.5h11v10H3zM14 10h3.8l3.2 3.4v3.1H14"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17.5" cy="17.5" r="1.8"/>'],
+  briefcase:['Công việc','<rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M9 7V5.5A1.5 1.5 0 0110.5 4h3A1.5 1.5 0 0115 5.5V7M3 12.5h18"/>'],
+  home:    ['Trang chủ','<path d="M3.5 11L12 4l8.5 7"/><path d="M5.5 9.5V20h13V9.5M10 20v-5.5h4V20"/>'],
+  globe:   ['Website','<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.5 3.5 5.3 3.5 8.5s-1.1 6-3.5 8.5c-2.4-2.5-3.5-5.3-3.5-8.5S9.6 6 12 3.5z"/>'],
+  link:    ['Liên kết','<path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/>'],
+  bell:    ['Thông báo','<path d="M6 16.5V11a6 6 0 0112 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 004 0"/>'],
+  camera:  ['Camera','<path d="M3.5 8.5A2 2 0 015.5 6.5h2l1.5-2h6l1.5 2h2a2 2 0 012 2v9a2 2 0 01-2 2h-13a2 2 0 01-2-2z"/><circle cx="12" cy="13" r="3.5"/>'],
+  settings:['Cài đặt','<path d="M4 6.5h9M17 6.5h3M4 12h3M11 12h9M4 17.5h11M19 17.5h1"/><circle cx="15" cy="6.5" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="17.5" r="2"/>'],
+  grid:    ['Ứng dụng','<rect x="4" y="4" width="6.5" height="6.5" rx="1.6"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.6"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.6"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.6"/>']
+};
+const svg = (k, cls='') => `<svg${cls ? ` class="${cls}"` : ''} viewBox="0 0 24 24" aria-hidden="true">${(IC[k] || IC.grid)[1]}</svg>`;
+const UI = {
+  edit:'<path d="M4 20h4L19 9a2.8 2.8 0 00-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>',
+  eye:'<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/>',
+  eyeOff:'<path d="M3 3l18 18M10.6 5.6A9.6 9.6 0 0112 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 01-3 3.7M6.6 6.7C4 8.4 2.5 12 2.5 12S6 18.5 12 18.5c1.5 0 2.8-.4 4-1M9.9 9.9a3 3 0 004.2 4.2"/>',
+  left:'<path d="M15 5l-7 7 7 7"/>', right:'<path d="M9 5l7 7-7 7"/>', plus:'<path d="M12 5v14M5 12h14"/>',
+  x:'<path d="M6 6l12 12M18 6L6 18"/>', ext:'<path d="M14 4h6v6M20 4l-9 9M18 14v4.5a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 014 18.5v-11A1.5 1.5 0 015.5 6H10"/>', trash:'<path d="M4 7h16M9 7V4.5h6V7M6 7l1 13h10l1-13"/>'
+};
+const ui = k => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${UI[k]}</svg>`;
 
-      var frame = document.getElementById('app');
-      var splash = document.getElementById('splash');
-      var splashMsg = document.getElementById('splashMsg');
-      var retryBtn = document.getElementById('retryBtn');
+/* ================= TIEN ICH ================= */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const urlOk = u => /^https?:\/\/[^\s]+$/i.test(u || '');
+const store = {
+  get(k, s=localStorage){ try { return JSON.parse(s.getItem(k)); } catch { return null; } },
+  set(k, v, s=localStorage){ try { v == null ? s.removeItem(k) : s.setItem(k, JSON.stringify(v)); } catch {} }
+};
+const bo_dau = s => String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').toLowerCase();
+let tTimer;
+function toast(msg, bad){ const t = $('#toast'); t.textContent = msg; t.className = 'toast on' + (bad ? ' bad' : ''); clearTimeout(tTimer); tTimer = setTimeout(() => t.className = 'toast', 2800); }
 
-      /* ===== Nạp cổng vào khung ===== */
-      // Sau khi đăng nhập Google, callback.html chuyển về đây kèm code/state -> chuyển tiếp vào khung
-      var src = new URLSearchParams(location.search);
-      var pass = new URLSearchParams();
-      ['code', 'state', 'error'].forEach(function (k) { if (src.has(k)) pass.set(k, src.get(k)); });
-      var target = APP_URL + (pass.toString() ? '?' + pass.toString() : '');
-      if (location.search) history.replaceState(null, '', location.pathname); // xoá code khỏi thanh địa chỉ
+/* ================= TRANG THAI ================= */
+const S = {
+  apps: store.get('portal_apps') || MAC_DINH,
+  admin: store.get('portal_admin', sessionStorage),   // {token, ho_ten, email, exp}
+  edit: false, q: ''
+};
+if (S.admin && S.admin.exp * 1000 < Date.now()) { S.admin = null; store.set('portal_admin', null, sessionStorage); }
 
-      /* ===== Thanh tiến trình ===== */
-      // Không đo được % thật của trang Google -> mô phỏng: nhanh lúc đầu, chậm dần, dừng ở 92% tới khi tải xong
-      var bar = document.getElementById('bar');
-      var barFill = document.getElementById('barFill');
-      var barPct = document.getElementById('barPct');
-      var prog = 0, progTimer = null, startAt = 0;
-      var STEPS = [
-        [0, 'Đang mở cổng tài khoản…'],
-        [3000, 'Đang kết nối máy chủ…'],
-        [7000, 'Đang tải giao diện…'],
-        [12000, 'Sắp xong, vui lòng chờ thêm chút…']
-      ];
-      function setProg(p) {
-        prog = p;
-        barFill.style.width = p.toFixed(1) + '%';
-        barPct.textContent = Math.floor(p) + '%';
-        bar.setAttribute('aria-valuenow', String(Math.floor(p)));
-      }
-      function startProg() {
-        clearInterval(progTimer);
-        bar.classList.remove('done');
-        startAt = Date.now();
-        setProg(0);
-        progTimer = setInterval(function () {
-          var t = Date.now() - startAt;
-          setProg(prog + (92 - prog) * (t < 1500 ? 0.09 : 0.035)); // ~45% sau 1,5 giây, ~80% sau 6 giây, tiến dần tới 92%
-          if (navigator.onLine === false || retryBtn.style.display === 'inline-block') return;
-          for (var i = STEPS.length - 1; i >= 0; i--) { if (t >= STEPS[i][0]) { splashMsg.textContent = STEPS[i][1]; break; } }
-        }, 200);
-      }
-      function finishProg() {
-        clearInterval(progTimer);
-        bar.classList.add('done');
-        setProg(100);
-      }
+async function api(path, {method='GET', body} = {}){
+  const h = {'Accept':'application/json'};
+  if (body !== undefined) h['Content-Type'] = 'application/json';
+  if (S.admin) h.Authorization = 'Bearer ' + S.admin.token;
+  const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 10000);
+  let r;
+  try { r = await fetch(API + path, {method, headers:h, body: body === undefined ? undefined : JSON.stringify(body), signal: ctl.signal}); }
+  catch { throw new Error('Không kết nối được máy chủ. Kiểm tra mạng rồi thử lại.'); }
+  finally { clearTimeout(to); }
+  const txt = await r.text(); let d = null; try { d = txt ? JSON.parse(txt) : null; } catch {}
+  if (r.status === 401 && S.admin) { thoatAdmin(); throw new Error('Phiên quản trị đã hết hạn, vui lòng đăng nhập lại.'); }
+  if (!r.ok) throw new Error((d && d.message) || ('Lỗi máy chủ (' + r.status + ').'));
+  return d;
+}
 
-      var loadTimer, doneTimer;
-      function load(url) {
-        clearTimeout(doneTimer);
-        splash.classList.remove('done');
-        splashMsg.textContent = navigator.onLine === false ? 'Không có kết nối mạng.' : 'Đang mở cổng tài khoản…';
-        retryBtn.style.display = 'none';
-        startProg();
-        clearTimeout(loadTimer);
-        loadTimer = setTimeout(function () {
-          retryBtn.style.display = 'inline-block';
-          splashMsg.textContent = 'Kết nối chậm hơn bình thường. Kiểm tra mạng rồi bấm Thử lại.';
-        }, 20000);
-        frame.src = url;
-      }
-      function ready() {
-        if (splash.classList.contains('done') || bar.classList.contains('done')) return;
-        clearTimeout(loadTimer);
-        finishProg();
-        doneTimer = setTimeout(function () { splash.classList.add('done'); }, 250); // cho thấy thanh chạy hết 100%
-      }
-      frame.addEventListener('load', function () { if (frame.getAttribute('src')) ready(); });
-      // Cổng báo "đã vẽ xong giao diện" ngay khi sẵn sàng -> tắt màn chờ sớm, không chờ font / tài nguyên phụ
-      window.addEventListener('message', function (e) {
-        var o = String(e.origin || '');
-        if (!/^https:\/\/(?:[a-z0-9-]+-script\.googleusercontent\.com|script\.google\.com)$/.test(o)) return; // khung Apps Script: n-…-script.googleusercontent.com
-        if (e.data && e.data.kamo === 'portal-ready') ready();
-        // Nút "Tải lại app" / tự cập nhật code: mở lại khung app với vé giữ đăng nhập (vé dùng 1 lần, 2 phút)
-        if (e.data && e.data.kamo === 'reload' && /^[0-9a-f]{48}$/.test(String(e.data.resume || ''))) {
-          try { e.source.postMessage({ kamo: 'reload-ack' }, o); } catch (err) { /* bỏ qua */ }
-          load(APP_URL + (APP_URL.indexOf('?') === -1 ? '?' : '&') + 'resume=' + e.data.resume);
-        }
-      });
-      retryBtn.addEventListener('click', function () { load(APP_URL); });
-      window.addEventListener('online', function () { if (!splash.classList.contains('done')) load(APP_URL); });
-      load(target);
+/* ================= HIEN THI ================= */
+const cham = matchMedia('(pointer:coarse)').matches;
+function danhSach(){
+  let a = S.apps.filter(x => S.edit || x.dang_dung);
+  if (S.q && !S.edit) { const w = bo_dau(S.q).split(/\s+/).filter(Boolean); a = a.filter(x => { const s = bo_dau(x.ten + ' ' + x.mo_ta); return w.every(t => s.includes(t)); }); }
+  return a;
+}
+function render(){
+  const box = $('#apps'), list = danhSach(), all = S.apps.filter(x => x.dang_dung).length;
+  document.body.classList.toggle('edit', S.edit);
+  $('#adm').classList.toggle('hidden', !S.edit);
+  $('#srch').classList.toggle('hidden', S.edit || all < 6);
+  $('#lead').textContent = S.edit ? (cham ? 'Chạm vào ứng dụng để sửa · dùng mũi tên để đổi vị trí' : 'Bấm vào ứng dụng để sửa · kéo thả hoặc dùng mũi tên để đổi vị trí') : 'Chọn ứng dụng để bắt đầu';
+  $('#bGear').classList.toggle('on', !!S.admin);
+  $('#bGear').title = S.admin ? (S.edit ? 'Thoát chế độ cấu hình' : 'Mở chế độ cấu hình') : 'Cấu hình Portal (admin)';
+  box.classList.toggle('many', list.length + (S.edit ? 1 : 0) > 4);
+  let n = 0;
+  box.innerHTML = list.map(x => {
+    const k = !S.edit && ++n <= 9 ? n : 0;
+    const tgt = x.tab_moi ? ' target="_blank" rel="noopener"' : '';
+    const href = urlOk(x.url) ? esc(x.url) : '#';
+    return `<a class="app${x.dang_dung ? '' : ' off'}" href="${href}"${tgt} data-id="${x.id}"${k ? ` data-key="${k}"` : ''}
+        title="${esc(x.ten)}${k ? ` (phím ${k})` : ''}"${S.edit ? ' draggable="true"' : ''}>
+      ${S.edit ? `<span class="ctl">
+          <button data-a="left" title="Chuyển sang trái" aria-label="Chuyển sang trái">${ui('left')}</button>
+          <button data-a="vis" title="${x.dang_dung ? 'Ẩn khỏi Portal' : 'Hiện trên Portal'}" aria-label="Ẩn/hiện">${ui(x.dang_dung ? 'eye' : 'eyeOff')}</button>
+          <button data-a="right" title="Chuyển sang phải" aria-label="Chuyển sang phải">${ui('right')}</button></span>` : ''}
+      ${k ? `<span class="kh">${k}</span>` : ''}
+      <span class="ic">${svg(x.icon)}${tbBadge(x)}</span>
+      ${x.dang_dung ? '' : '<span class="tag">ĐANG ẨN</span>'}
+      <span class="nm">${esc(x.ten)}</span>
+      ${x.mo_ta ? `<span class="ds">${esc(x.mo_ta)}</span>` : ''}
+      ${tbDong(x)}
+    </a>`;
+  }).join('') + (S.edit ? `<a class="app add" href="#" data-add="1" title="Thêm ứng dụng mới"><span class="ic">${svg('plus')}</span><span class="nm">Thêm ứng dụng</span><span class="ds">Tạo mục mới trên Portal</span></a>` : '')
+    + (!list.length && !S.edit ? `<div class="empty">${S.q ? 'Không tìm thấy ứng dụng phù hợp.' : 'Chưa có ứng dụng nào.'}</div>` : '');
+}
+IC.plus = ['', UI.plus];
 
-      /* ===== Service worker (để trình duyệt cho phép cài đặt) ===== */
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
-      }
+/* ================= BAO YEU CAU MOI (file SQL 81) =================
+   tb_nguon: 'payment' -> api.portal_thong_bao (so de nghi "De xuat") · 'url' -> doc JSON cua ung dung khac
+   Lam moi moi 60 giay + khi quay lai tab. Luu tam so lan truoc de hien ngay khi mo trang. */
+const TB_CHU_KY = 60e3;
+S.tb = store.get('portal_tb') || {};                 // { id: {so, nhan} }
+const tbSo = n => n > 99 ? '99+' : String(n);
+function tbCua(x){ const t = S.tb[x.id]; return t && t.so > 0 && !S.edit && x.dang_dung ? t : null; }
+function tbBadge(x){ const t = tbCua(x); return t ? `<span class="bd" data-bd="${x.id}" aria-hidden="true">${tbSo(t.so)}</span>` : ''; }
+function tbDong(x){ const t = tbCua(x); return t ? `<span class="tb" data-tbd="${x.id}"><i></i>${t.so.toLocaleString('vi-VN')} yêu cầu mới</span>` : ''; }
+async function docSo(u){                             // ung dung khac: so | {so} | {count} | {n} | {data:{so}}
+  const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 8000);
+  try {
+    const r = await fetch(u, { signal: ctl.signal, headers: { Accept: 'application/json' }, cache: 'no-store' });
+    if (!r.ok) return null;
+    const d = await r.json(), v = typeof d === 'number' ? d : d && (d.so ?? d.count ?? d.n ?? (d.data && (d.data.so ?? d.data.count)));
+    const n = Math.max(0, Math.floor(Number(v)));
+    return Number.isFinite(n) ? { so: n, nhan: (d && d.nhan) || 'yêu cầu mới' } : null;
+  } catch { return null; } finally { clearTimeout(to); }
+}
+let tbDang = false;
+async function taiTb(){
+  if (tbDang || document.hidden) return; tbDang = true;
+  try {
+    const ds = S.apps.filter(x => x.dang_dung && x.tb_nguon), moi = {};
+    if (!ds.length) { S.tb = {}; store.set('portal_tb', null); return tbVe(); }
+    let p = null;
+    if (ds.some(x => x.tb_nguon === 'payment')) { try { p = await api('/rpc/portal_thong_bao'); } catch {} }
+    await Promise.all(ds.map(async x => {
+      if (x.tb_nguon === 'payment' && p && p.payment) moi[x.id] = { so: +p.payment.so || 0, nhan: p.payment.nhan };
+      else if (x.tb_nguon === 'url' && x.tb_url) { const t = await docSo(x.tb_url); if (t) moi[x.id] = t; }
+      if (!moi[x.id] && S.tb[x.id]) moi[x.id] = S.tb[x.id];          // loi mang -> giu so cu
+    }));
+    const tang = Object.keys(moi).filter(id => (moi[id].so || 0) > ((S.tb[id] || {}).so || 0));
+    S.tb = moi; store.set('portal_tb', moi); tbVe(tang);
+  } finally { tbDang = false; }
+}
+// cap nhat rieng phan bao (khong ve lai ca trang); so tang -> nay nhe
+function tbVe(tang = []){
+  if (S.edit) return;
+  document.querySelectorAll('#apps .app[data-id]').forEach(a => {
+    const x = S.apps.find(v => v.id == a.dataset.id); if (!x) return;
+    const ic = a.querySelector('.ic'), old = ic.querySelector('.bd'), od = a.querySelector('.tb'), t = tbCua(x);
+    if (!t) { old && old.remove(); od && od.remove(); a.title = x.ten; return; }
+    if (old) old.textContent = tbSo(t.so); else ic.insertAdjacentHTML('beforeend', tbBadge(x));
+    const dong = `<i></i>${t.so.toLocaleString('vi-VN')} yêu cầu mới`;
+    if (od) od.innerHTML = dong; else a.insertAdjacentHTML('beforeend', `<span class="tb" data-tbd="${x.id}">${dong}</span>`);
+    a.title = `${x.ten} – ${t.so.toLocaleString('vi-VN')} ${t.nhan || 'yêu cầu mới'}`;
+    a.setAttribute('aria-label', a.title);
+    if (tang.includes(String(x.id))) { const b = ic.querySelector('.bd'); b.classList.remove('moi'); void b.offsetWidth; b.classList.add('moi'); }
+  });
+}
+setInterval(taiTb, TB_CHU_KY);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) taiTb(); });
+addEventListener('focus', () => taiTb());
 
-      /* ===== Gợi ý cài đặt ===== */
-      var box = document.getElementById('install');
-      var installBtn = document.getElementById('installBtn');
-      var installText = document.getElementById('installText');
-      var standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-      var dismissed = false;
-      try { dismissed = localStorage.getItem('kamo_install_dismissed') === '1'; } catch (e) {}
-      var deferred = null;
+/* ================= TAI DU LIEU ================= */
+async function taiDs(bao){
+  try {
+    let d;
+    try { d = await api('/portal_ung_dung?select=id,ten,mo_ta,url,icon,thu_tu,dang_dung,tab_moi,cap_nhat_luc,cap_nhat_boi,tb_nguon,tb_url&order=thu_tu,id'); }
+    catch(e0) { if (!/tb_nguon|tb_url|column/i.test(e0.message)) throw e0;          // CSDL chua chay file 81
+                d = await api('/portal_ung_dung?select=id,ten,mo_ta,url,icon,thu_tu,dang_dung,tab_moi,cap_nhat_luc,cap_nhat_boi&order=thu_tu,id'); }
+    if (Array.isArray(d)) {
+      S.apps = d;
+      store.set('portal_apps', d.filter(x => x.dang_dung).map(({id,ten,mo_ta,url,icon,dang_dung,tab_moi,tb_nguon,tb_url}) => ({id,ten,mo_ta,url,icon,dang_dung,tab_moi,tb_nguon,tb_url})));
+      render(); taiTb();
+    }
+  } catch(e) { if (bao) toast(e.message, true); }
+}
 
-      function showBox() { if (!standalone && !dismissed) box.classList.add('show'); }
-      document.getElementById('installClose').addEventListener('click', function () {
-        box.classList.remove('show');
-        try { localStorage.setItem('kamo_install_dismissed', '1'); } catch (e) {}
-      });
+/* ================= DONG HO ================= */
+(function(){
+  const c = $('#clock');
+  const tick = () => { const d = new Date();
+    c.innerHTML = `<span class="d">${d.toLocaleDateString('vi-VN',{weekday:'long', day:'2-digit', month:'2-digit', year:'numeric'})} · </span>` + d.toLocaleTimeString('vi-VN',{hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false}); };
+  tick(); setTimeout(() => { tick(); setInterval(tick, 1000); }, 1000 - Date.now() % 1000);
+})();
 
-      // Android / Chrome / Edge trên máy tính
-      window.addEventListener('beforeinstallprompt', function (e) {
-        e.preventDefault();
-        deferred = e;
-        setTimeout(showBox, 1500);
-      });
-      installBtn.addEventListener('click', function () {
-        if (!deferred) return;
-        deferred.prompt();
-        deferred.userChoice.finally(function () { deferred = null; box.classList.remove('show'); });
-      });
-      window.addEventListener('appinstalled', function () { box.classList.remove('show'); });
+/* ================= HOP THOAI ================= */
+let dongDlg = null;
+function moDlg(html, cls=''){
+  dongLai();
+  const ov = document.createElement('div'); ov.className = 'ov';
+  ov.innerHTML = `<div class="dlg ${cls}" role="dialog" aria-modal="true">${html}</div>`;
+  document.body.appendChild(ov);
+  let downOnOv = false;
+  ov.addEventListener('mousedown', e => downOnOv = e.target === ov);
+  ov.addEventListener('click', e => { if (e.target === ov && downOnOv) dongLai(); });
+  ov.querySelectorAll('[data-close]').forEach(b => b.onclick = dongLai);
+  dongDlg = () => ov.remove();
+  return ov;
+}
+function dongLai(){ if (dongDlg) { dongDlg(); dongDlg = null; } }
 
-      // iPhone / iPad: Safari không có nút cài tự động -> hướng dẫn bằng chữ
-      var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-      if (isIOS && !standalone) {
-        installText.innerHTML = '<b>Cài Kamo - IT Services Portal lên máy</b>Bấm nút Chia sẻ của Safari, rồi chọn “Thêm vào MH chính”.';
-        installBtn.style.display = 'none';
-        setTimeout(showBox, 2500);
-      }
-    })();
-  </script>
+/* ----- Dang nhap admin ----- */
+function moDangNhap(){
+  const ov = moDlg(`
+    <div class="dh"><h3>Đăng nhập quản trị</h3><button class="x" data-close aria-label="Đóng">${ui('x')}</button></div>
+    <form id="fAd" autocomplete="on">
+      <div class="db">
+        <p style="margin:0 0 14px;font-size:13px;color:var(--muted)">Dùng tài khoản <b>admin</b> của Payment Portal để cấu hình danh sách ứng dụng.</p>
+        <div class="f"><label>Email</label><input class="inp" name="email" type="email" required autocomplete="username"></div>
+        <div class="f"><label>Mật khẩu</label><input class="inp" name="mat_khau" type="password" required autocomplete="current-password"></div>
+        <div class="err" id="adErr"></div>
+      </div>
+      <div class="df"><span class="sp"></span><button type="button" class="btn huy" data-close>Hủy bỏ</button><button class="btn pri" id="bAdOk">Đăng nhập</button></div>
+    </form>`, 'sm');
+  const f = ov.querySelector('#fAd'); f.email.focus();
+  f.onsubmit = async e => {
+    e.preventDefault();
+    const b = ov.querySelector('#bAdOk'), er = ov.querySelector('#adErr'); b.disabled = true; er.textContent = '';
+    try {
+      S.admin = null;
+      const d = await api('/rpc/dang_nhap', {method:'POST', body:{email: f.email.value.trim(), mat_khau: f.mat_khau.value}});
+      if (!d || d.loi) throw new Error(d && d.loi || 'Đăng nhập không thành công.');
+      if (d.vai_tro !== 'admin') throw new Error('Tài khoản này không có quyền cấu hình Portal (chỉ admin).');
+      let exp = Date.now() / 1000 + 12 * 3600;
+      try { exp = JSON.parse(atob(d.token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).exp || exp; } catch {}
+      S.admin = {token: d.token, ho_ten: d.ho_ten, email: f.email.value.trim().toLowerCase(), exp};
+      store.set('portal_admin', S.admin, sessionStorage);
+      dongLai(); batSua();
+    } catch(err) { er.textContent = err.message; f.mat_khau.select(); }
+    finally { b.disabled = false; }
+  };
+}
+function batSua(){
+  S.edit = true; S.q = ''; $('#q').value = '';
+  $('#admWho').textContent = '· ' + (S.admin.ho_ten || S.admin.email);
+  render(); taiDs(true);
+}
+function tatSua(){ S.edit = false; dongLai(); render(); }
+function thoatAdmin(){ S.admin = null; store.set('portal_admin', null, sessionStorage); tatSua(); taiDs(); }
+
+/* ----- Them / sua ung dung ----- */
+function moSua(x){
+  const moi = !x;
+  x = x || {id:null, ten:'', mo_ta:'', url:'https://', icon:'grid', dang_dung:true, tab_moi:true};
+  let icon = x.icon || 'grid', xacNhanXoa = false;
+  const coTb = 'tb_nguon' in x || S.apps.some(a => 'tb_nguon' in a);     // CSDL da chay file 81
+  const keys = Object.keys(IC).filter(k => k !== 'plus');
+  const ov = moDlg(`
+    <div class="dh"><h3>${moi ? 'Thêm ứng dụng mới' : 'Sửa ứng dụng'}</h3><button class="x" data-close aria-label="Đóng">${ui('x')}</button></div>
+    <form id="fApp" novalidate>
+      <div class="db">
+        <div class="pv"><span class="ic" id="pvIc"></span><span class="t"><span class="nm" id="pvNm"></span><span class="ds" id="pvDs"></span><span class="u" id="pvU"></span></span></div>
+        <div class="f"><label>Tên ứng dụng * <small id="cTen"></small></label><input class="inp" name="ten" maxlength="40" placeholder="VD: IT Services" value="${esc(x.ten)}"></div>
+        <div class="f"><label>Diễn giải nội dung <small id="cMt"></small></label><input class="inp" name="mo_ta" maxlength="80" placeholder="VD: Tài khoản & dịch vụ CNTT" value="${esc(x.mo_ta)}"></div>
+        <div class="f"><label>Đường dẫn (URL) *</label>
+          <div class="row"><input class="inp" name="url" inputmode="url" placeholder="https://..." value="${esc(x.url)}"><button type="button" class="btn" id="bThu" title="Mở thử đường dẫn">${ui('ext')}Mở thử</button></div>
+          <div class="hint">Dán đầy đủ địa chỉ trang, bắt đầu bằng https://</div></div>
+        <div class="f"><label>Biểu tượng <small id="icNm"></small></label><div class="icg" id="icg">${keys.map(k => `<button type="button" data-ic="${k}" title="${esc(IC[k][0])}">${svg(k)}</button>`).join('')}</div></div>
+        ${coTb ? `<div class="f"><label>Báo yêu cầu mới trên icon</label>
+          <select class="inp" name="tb_nguon">
+            <option value="" ${!x.tb_nguon ? 'selected' : ''}>Không hiện</option>
+            <option value="payment" ${x.tb_nguon === 'payment' ? 'selected' : ''}>Payment Portal – đề nghị đang ở trạng thái Đề xuất</option>
+            <option value="url" ${x.tb_nguon === 'url' ? 'selected' : ''}>Ứng dụng khác – đọc số từ đường dẫn JSON</option></select>
+          <input class="inp ${x.tb_nguon === 'url' ? '' : 'hidden'}" name="tb_url" inputmode="url" placeholder="https://…/so-yeu-cau-moi (trả về {&quot;so&quot;: 5})" value="${esc(x.tb_url || '')}" style="margin-top:8px">
+          <div class="hint">Số hiện ở góc icon, ai mở Portal cũng thấy (chỉ con số). Đường dẫn JSON phải cho phép truy cập từ trang Portal (CORS).</div></div>` : ''}
+        <div class="sws">
+          <label class="sw"><input type="checkbox" name="dang_dung" ${x.dang_dung ? 'checked' : ''}>Hiển thị trên Portal</label>
+          <label class="sw"><input type="checkbox" name="tab_moi" ${x.tab_moi ? 'checked' : ''}>Mở trong tab mới</label>
+        </div>
+        <div class="err" id="apErr"></div>
+        ${!moi && x.cap_nhat_luc ? `<div class="meta">Cập nhật lần cuối: ${esc(new Date(x.cap_nhat_luc).toLocaleString('vi-VN'))}${x.cap_nhat_boi ? ' · ' + esc(x.cap_nhat_boi) : ''}</div>` : ''}
+      </div>
+      <div class="df">
+        ${moi ? '' : `<button type="button" class="btn del" id="bDel">${ui('trash')}<span>Xóa</span></button>`}
+        <span class="sp"></span>
+        <button type="button" class="btn huy" data-close>Hủy bỏ</button>
+        <button class="btn pri" id="bSave">Lưu</button>
+      </div>
+    </form>`);
+  const f = ov.querySelector('#fApp'), er = ov.querySelector('#apErr');
+  const ve = () => {
+    ov.querySelector('#pvIc').innerHTML = svg(icon);
+    ov.querySelector('#pvNm').textContent = f.ten.value.trim() || 'Tên ứng dụng';
+    ov.querySelector('#pvDs').textContent = f.mo_ta.value.trim() || 'Diễn giải nội dung';
+    ov.querySelector('#pvU').textContent = f.url.value.trim();
+    const c1 = ov.querySelector('#cTen'), c2 = ov.querySelector('#cMt');
+    c1.textContent = f.ten.value.length + '/40'; c1.classList.toggle('max', f.ten.value.length >= 40);
+    c2.textContent = f.mo_ta.value.length + '/80'; c2.classList.toggle('max', f.mo_ta.value.length >= 80);
+    ov.querySelectorAll('[data-ic]').forEach(b => b.classList.toggle('on', b.dataset.ic === icon));
+    ov.querySelector('#icNm').textContent = (IC[icon] || IC.grid)[0];
+  };
+  const chuanUrl = () => { let u = f.url.value.trim(); if (u && u !== 'https://' && !/^[a-z]+:\/\//i.test(u)) u = 'https://' + u; f.url.value = u; ve(); };
+  f.addEventListener('input', e => { e.target.classList.remove('bad'); er.textContent = ''; ve(); });
+  f.url.addEventListener('blur', chuanUrl);
+  ov.querySelector('#icg').onclick = e => { const b = e.target.closest('[data-ic]'); if (b) { icon = b.dataset.ic; ve(); } };
+  ov.querySelector('#bThu').onclick = () => { chuanUrl(); if (urlOk(f.url.value)) window.open(f.url.value, '_blank', 'noopener'); else { f.url.classList.add('bad'); er.textContent = 'Đường dẫn chưa hợp lệ.'; } };
+  ve();
+  (moi ? f.ten : f.ten).focus();
+  // goi y icon theo ten khi them moi (neu chua tu chon)
+  let tuChon = !moi;
+  ov.querySelector('#icg').addEventListener('click', () => tuChon = true);
+  f.ten.addEventListener('input', () => {
+    if (tuChon) return;
+    const t = bo_dau(f.ten.value), map = [['mail|email|thu',"mail"],['lich|calendar|hop',"calendar"],['luong|payroll|thanh toan|payment|bank',"card"],['nhan su|hr|nhan vien',"users"],['bao cao|report|dashboard',"chart"],['drive|cloud|luu tru',"cloud"],['nas|server|may chu',"server"],['in|printer',"printer"],['wifi|mang',"wifi"],['cham cong|gio',"clock"],['tai lieu|doc|van ban',"file"],['sheet|excel|bang',"table"],['huong dan|wiki|quy trinh',"book"],['ho tro|helpdesk|support',"headset"],['ticket|yeu cau',"ticket"],['mua|order|don hang',"cart"],['kho|tai san|asset',"box"],['giao hang|van chuyen',"truck"],['mat khau|password|bao mat',"lock"],['web|website',"globe"],['camera',"camera"],['chat|zalo|tin nhan',"chat"],['it|account|tai khoan',"shield"]];
+    const m = map.find(([re]) => new RegExp('(^|\\s)(' + re + ')').test(t));
+    icon = m ? m[1] : 'grid'; ve();
+  });
+  f.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) f.requestSubmit(); });
+  if (f.tb_nguon) f.tb_nguon.onchange = () => { f.tb_url.classList.toggle('hidden', f.tb_nguon.value !== 'url'); if (f.tb_nguon.value === 'url') f.tb_url.focus(); };
+  f.onsubmit = async e => {
+    e.preventDefault(); chuanUrl();
+    const ten = f.ten.value.trim(), mo_ta = f.mo_ta.value.trim(), url = f.url.value.trim();
+    if (!ten) { f.ten.classList.add('bad'); f.ten.focus(); er.textContent = 'Vui lòng nhập tên ứng dụng.'; return; }
+    if (!urlOk(url) || url === 'https://') { f.url.classList.add('bad'); f.url.focus(); er.textContent = 'Đường dẫn chưa hợp lệ (cần bắt đầu bằng https://).'; return; }
+    const tbNg = f.tb_nguon ? f.tb_nguon.value : null, tbUrl = f.tb_url ? f.tb_url.value.trim() : '';
+    if (tbNg === 'url' && !urlOk(tbUrl)) { f.tb_url.classList.add('bad'); f.tb_url.focus(); er.textContent = 'Nhập đường dẫn JSON hợp lệ (bắt đầu bằng https://).'; return; }
+    const b = ov.querySelector('#bSave'); b.disabled = true;
+    try {
+      const id = await api('/rpc/luu_portal_ung_dung', {method:'POST', body:{id: x.id, ten, mo_ta, url, icon, dang_dung: f.dang_dung.checked, tab_moi: f.tab_moi.checked}});
+      if (tbNg !== null && (tbNg !== (x.tb_nguon || '') || (tbNg === 'url' && tbUrl !== (x.tb_url || ''))))
+        await api('/rpc/luu_portal_thong_bao', {method:'POST', body:{id: x.id ?? id, nguon: tbNg, url: tbNg === 'url' ? tbUrl : null}});
+      dongLai(); toast(moi ? 'Đã thêm "' + ten + '" vào Portal.' : 'Đã lưu thay đổi.'); await taiDs(true);
+    } catch(err) { er.textContent = err.message; }
+    finally { b.disabled = false; }
+  };
+  const bd = ov.querySelector('#bDel');
+  if (bd) bd.onclick = async () => {
+    if (!xacNhanXoa) { xacNhanXoa = true; bd.classList.add('cf'); bd.querySelector('span').textContent = 'Bấm lần nữa để xóa'; setTimeout(() => { if (bd.isConnected) { xacNhanXoa = false; bd.classList.remove('cf'); bd.querySelector('span').textContent = 'Xóa'; } }, 4000); return; }
+    bd.disabled = true;
+    try { await api('/rpc/xoa_portal_ung_dung', {method:'POST', body:{id: x.id}}); dongLai(); toast('Đã xóa "' + x.ten + '".'); await taiDs(true); }
+    catch(err) { er.textContent = err.message; bd.disabled = false; }
+  };
+}
+
+/* ----- An/hien nhanh, sap xep ----- */
+async function anHien(x){
+  try {
+    await api('/rpc/luu_portal_ung_dung', {method:'POST', body:{id:x.id, ten:x.ten, mo_ta:x.mo_ta, url:x.url, icon:x.icon, dang_dung:!x.dang_dung, tab_moi:x.tab_moi}});
+    toast(x.dang_dung ? 'Đã ẩn "' + x.ten + '".' : 'Đã hiện "' + x.ten + '".'); await taiDs(true);
+  } catch(e) { toast(e.message, true); }
+}
+async function luuThuTu(ids){
+  const cu = S.apps.slice();
+  S.apps = ids.map(i => S.apps.find(x => x.id === i)).filter(Boolean); render();
+  try { await api('/rpc/sap_xep_portal_ung_dung', {method:'POST', body:{ids}}); toast('Đã cập nhật thứ tự.'); }
+  catch(e) { S.apps = cu; render(); toast(e.message, true); }
+}
+function doiCho(id, buoc){
+  const ids = S.apps.map(x => x.id), i = ids.indexOf(id), j = i + buoc;
+  if (i < 0 || j < 0 || j >= ids.length) return;
+  [ids[i], ids[j]] = [ids[j], ids[i]]; luuThuTu(ids);
+}
+
+/* ================= SU KIEN ================= */
+$('#bGear').onclick = () => S.admin ? (S.edit ? tatSua() : batSua()) : moDangNhap();
+$('#bAdd').onclick = () => moSua(null);
+$('#bDone').onclick = tatSua;
+$('#bLogout').onclick = () => { thoatAdmin(); toast('Đã đăng xuất quản trị.'); };
+$('#q').addEventListener('input', e => { S.q = e.target.value; render(); });
+$('#q').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { const a = $('#apps .app[href]:not([href="#"])'); if (a) a.click(); }
+  if (e.key === 'Escape') { e.target.value = ''; S.q = ''; render(); e.target.blur(); }
+});
+$('#apps').addEventListener('click', e => {
+  if (!S.edit) { const a = e.target.closest('.app'); if (a && a.getAttribute('href') === '#') e.preventDefault(); return; }
+  e.preventDefault();
+  const a = e.target.closest('.app'); if (!a) return;
+  if (a.dataset.add) return moSua(null);
+  const x = S.apps.find(v => v.id == a.dataset.id); if (!x) return;
+  const b = e.target.closest('[data-a]');
+  if (!b) return moSua(x);
+  if (b.dataset.a === 'vis') anHien(x);
+  else doiCho(x.id, b.dataset.a === 'left' ? -1 : 1);
+});
+// keo tha (may tinh)
+let keo = null;
+$('#apps').addEventListener('dragstart', e => { const a = e.target.closest('.app[data-id]'); if (!S.edit || !a) return; keo = +a.dataset.id; a.classList.add('drag'); e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', String(keo)); } catch {} });
+$('#apps').addEventListener('dragend', () => { keo = null; document.querySelectorAll('.app.drag,.app.over').forEach(a => a.classList.remove('drag','over')); });
+$('#apps').addEventListener('dragover', e => { if (keo == null) return; const a = e.target.closest('.app[data-id]'); if (!a) return; e.preventDefault(); document.querySelectorAll('.app.over').forEach(o => o !== a && o.classList.remove('over')); if (+a.dataset.id !== keo) a.classList.add('over'); });
+$('#apps').addEventListener('drop', e => {
+  const a = e.target.closest('.app[data-id]'); if (keo == null || !a) return; e.preventDefault();
+  const den = +a.dataset.id; if (den === keo) return;
+  const ids = S.apps.map(x => x.id).filter(i => i !== keo); ids.splice(ids.indexOf(den) + (S.apps.findIndex(x => x.id === keo) < S.apps.findIndex(x => x.id === den) ? 1 : 0), 0, keo);
+  luuThuTu(ids);
+});
+// phim tat
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && dongDlg) return dongLai();
+  if (e.ctrlKey || e.metaKey || e.altKey || dongDlg || S.edit) return;
+  const tg = e.target.tagName; if (tg === 'INPUT' || tg === 'TEXTAREA') return;
+  if (e.key === '/' && !$('#srch').classList.contains('hidden')) { e.preventDefault(); $('#q').focus(); return; }
+  const a = document.querySelector(`.app[data-key="${e.key}"]`); if (a) a.click();
+});
+
+/* ================= KHOI DONG ================= */
+render();
+taiDs();
+if (S.admin) $('#admWho').textContent = '· ' + (S.admin.ho_ten || S.admin.email);
+</script>
 </body>
 </html>
